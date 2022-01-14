@@ -21,7 +21,7 @@ pub fn build(b: *std.build.Builder) !void {
     lib.setBuildMode(mode);
     lib.linkLibCpp(); // libgeos has lib c++ dependencies
 
-    // add libgeos include dirs (containing .h files)
+    // add libgeos include dirs for c headers
     for (geos_include_dirs) |dir| {
         const path = try fs.path.join(alloc, &[_][]const u8{repo_root, dir});
         defer alloc.free(path);
@@ -31,7 +31,8 @@ pub fn build(b: *std.build.Builder) !void {
     // add c/c++ source files
     const libgeos_sources = try findLibGEOSSources(alloc);
     defer alloc.free(libgeos_sources);
-    lib.addCSourceFiles(libgeos_sources, &.{});
+    // TODO: this is a mixture of c and c++ files. Maybe separately with respective flags ,e.g. "-std=c++17" or "-std=c99", etc.
+    lib.addCSourceFiles(libgeos_sources, &.{ "-g0", "-O" });
 
     lib.install();
 
