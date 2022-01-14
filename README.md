@@ -7,6 +7,8 @@ Zig bindings for the [GEOS C library](https://libgeos.org/).
 ## Build
 
 ```shell
+git clone --recurse-submodules https://github.com/guidorice/geos.git
+cd geos/
 zig build
 ```
 
@@ -23,3 +25,8 @@ TODO
 ## Contribute
 
 Pull requests or issues are welcome.
+
+```shell
+cmake -D CMAKE_C_COMPILER=zig-cc.sh -D CMAKE_CXX_COMPILER=zig-cxx.sh ..
+make
+```
