@@ -5,7 +5,7 @@ const mem = std.mem;
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 
-const geos_include_dirs = [_][] const u8 {
+const geos_include_dirs = [_][]const u8{
     "/src/vendor/geos/build/capi",
     "/src/vendor/geos/build/include",
     "/src/geos/include",
@@ -13,25 +13,28 @@ const geos_include_dirs = [_][] const u8 {
 };
 
 pub fn build(b: *std.build.Builder) !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const alloc = gpa.allocator();
     const repo_root = comptime fs.path.dirname(@src().file) orelse ".";
-    const alloc = b.allocator;
     const mode = b.standardReleaseOptions();
-
+    const target = b.standardTargetOptions(.{});
     const lib = b.addStaticLibrary("geos", "src/main.zig");
-    lib.setBuildMode(mode);
-    lib.linkLibCpp(); // libgeos has lib c++ dependencies
 
-    // add libgeos include dirs for c headers
+    lib.setTarget(target);
+    lib.setBuildMode(mode);
+    lib.linkLibCpp(); // libgeos has C++ stdlib dependencies
+
+    // add libgeos include directories for C headers
     for (geos_include_dirs) |dir| {
-        const path = try fs.path.join(alloc, &[_][]const u8{repo_root, dir});
+        const path = try fs.path.join(alloc, &[_][]const u8{ repo_root, dir });
         defer alloc.free(path);
         lib.addIncludeDir(path);
     }
 
-    // add c/c++ source files
+    // add C/C++ source files
     const libgeos_sources = try findLibGEOSSources(alloc);
     defer alloc.free(libgeos_sources);
-    // TODO: this is a mixture of c and c++ files. Maybe separately with respective flags ,e.g. "-std=c++17" or "-std=c99", etc.
+    // TODO: adding a mixture of .c and .cpp files. Any advantage to add them separately, with respective flags, e.g. "-std=c++17" or "-std=c99", etc?
     lib.addCSourceFiles(libgeos_sources, &.{ "-g0", "-O" });
 
     lib.install();
@@ -44,7 +47,7 @@ pub fn build(b: *std.build.Builder) !void {
 }
 
 /// Walk the libgeos source tree and collect all .c and .cpp source files.
-/// Caller owns the returned values.
+/// *Caller owns the returned memory.*
 fn findLibGEOSSources(alloc: Allocator) ![]const []const u8 {
     const repo_root = comptime fs.path.dirname(@src().file) orelse ".";
     const geos_src_path = repo_root ++ "/src/geos/src";
@@ -56,8 +59,7 @@ fn findLibGEOSSources(alloc: Allocator) ![]const []const u8 {
         if (entry.kind != .File) continue;
         if (mem.endsWith(u8, entry.basename, ".c") or mem.endsWith(u8, entry.basename, ".cpp")) {
             const abs_path = try fs.path.join(alloc, &.{ geos_src_path, entry.path });
-            defer alloc.free(abs_path);
-            try list.append(try alloc.dupe(u8, abs_path));
+            try list.append(abs_path);
         }
     }
     return list.toOwnedSlice();
