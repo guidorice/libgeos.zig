@@ -1,58 +1,77 @@
-const c = @cImport({
-    @cInclude("geos_c.h");
-    @cInclude("zig_handlers.h");
-});
+/// Credit to mattnite, based on https://github.com/mattnite/zig-zlib/blob/a6a72f47c0653b5757a86b453b549819a151d6c7/zlib.zig
 
 const std = @import("std");
-const builtin = @import("builtin");
-const testing = std.testing;
 
+const Allocator = std.mem.Allocator;
+const ArrayList = std.ArrayList;
+const endsWith = std.mem.endsWith;
 
-pub extern "c" fn shim_notice(format: [*c]const u8, ...) void;
-pub extern "c" fn shim_error(format: [*c]const u8, ...) void;
-
-/// libgeos notice handler. Is called by C fn shim_notice().
-export fn notice_handler(msg: [*c]u8) void {
-    std.log.info("libgeos: {s}", .{msg});
-    defer std.c.free(msg);
+fn root() []const u8 {
+    return std.fs.path.dirname(@src().file) orelse ".";
 }
 
-/// libgeos log and exit handler. Is called by C fn shim_log_and_exit().
-export fn error_handler(msg: [*c]const u8) void {
-    if(!builtin.is_test) {
-        std.log.err("libgeos: {s}", .{msg});
-        std.os.exit(1);
-    } else {
-        // just warn and dont exit, other test will fail
-        std.log.warn("libgeos: {s}", .{msg});
+const root_path = root() ++ "/";
+const package_path = root_path ++ "/main.zig";
+const geos_src_path = root_path ++ "/geos/src";
+const shim_src = root_path ++ "/shim/zig_handlers.c";
+
+const geos_include_dirs = [_][]const u8{
+    root_path ++ "/vendor/geos/build/capi",
+    root_path ++ "/vendor/geos/build/include",
+    root_path ++ "/shim",
+    root_path ++ "/geos/include",
+    root_path ++ "/geos/src/deps",
+};
+
+pub const Options = struct {
+    import_name: ?[]const u8 = null,
+};
+
+pub const Library = struct {
+    step: *std.build.LibExeObjStep,
+
+    pub fn link(self: Library, other: *std.build.LibExeObjStep, opts: Options) void {
+        for (geos_include_dirs) |dir| {
+            other.addIncludeDir(dir);
+        }
+        other.linkLibrary(self.step);
+
+        if (opts.import_name) |import_name|
+            other.addPackagePath(import_name, package_path);
     }
+};
+
+pub fn create(b: *std.build.Builder, target: std.zig.CrossTarget, mode: std.builtin.Mode) !Library {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const alloc = gpa.allocator();
+    var ret = b.addStaticLibrary("geos", null);
+    ret.setTarget(target);
+    ret.setBuildMode(mode);
+    ret.linkLibCpp();
+    for (geos_include_dirs) |dir| {
+        ret.addIncludeDir(dir);
+    }
+    ret.addCSourceFile(shim_src, &.{"-O"});
+    const libgeos_sources = try findLibGEOSSources(alloc);
+    defer alloc.free(libgeos_sources);
+    // TODO: adding a mixture of .c and .cpp files. Any advantage to add them separately, with respective flags, e.g. "-std=c++17" or "-std=c99", etc?
+    ret.addCSourceFiles(libgeos_sources, &.{ "-g0", "-O" });
+    return Library{ .step = ret };
 }
 
-test "shim_notice -> zig handler" {
-    // send some printf style args to the notice handler
-    shim_notice("%s %s %s\n", "hello", "from", "zig");
+/// Walk the libgeos source tree and collect all .c and .cpp source files.
+/// *Caller owns the returned memory.*
+fn findLibGEOSSources(alloc: Allocator) ![]const []const u8 {
+    const libgeos_dir = try std.fs.openDirAbsolute(geos_src_path, .{ .iterate = true });
+    var walker = try libgeos_dir.walk(alloc);
+    defer walker.deinit();
+    var list = ArrayList([]const u8).init(alloc);
+    while (try walker.next()) |entry| {
+        if (entry.kind != .File) continue;
+        if (endsWith(u8, entry.basename, ".c") or endsWith(u8, entry.basename, ".cpp")) {
+            const abs_path = try std.fs.path.join(alloc, &.{ geos_src_path, entry.path });
+            try list.append(abs_path);
+        }
+    }
+    return list.toOwnedSlice();
 }
-
-test "shim_log_and_exit -> zig handler" {
-    // send some printf style args to the log_and_exit handler
-    shim_error("%s %s %s\n", "this is a C", "callback", "to zig");
-}
-
-test "c.initGEOS" {
-    c.initGEOS(shim_notice, shim_error);
-}
-
-// const logExitMessageHandler = std.log.err;
-
-// test "C_initGEOS()" {
-//     // TODO: wait for varargs in https://github.com/ziglang/zig/issues/515
-//     c.initGEOS(printf, printf);
-
-// }
-
-// test "C_GEOSversion" {
-//     const GEOSVersion = c.GEOSVersion;
-//     const ver = GEOSVersion();
-//     log.info("{s}", .{ ver });
-// }
-
