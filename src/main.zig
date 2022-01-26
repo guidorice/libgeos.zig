@@ -1,10 +1,9 @@
 const std = @import("std");
-const testing = std.testing;
 
-export fn add(a: i32, b: i32) i32 {
-    return a + b;
+pub fn main() anyerror!void {
+    std.log.info("All your codebase are belong to us.", .{});
 }
 
-test "basic add functionality" {
-    try testing.expect(add(3, 7) == 10);
+test "basic test" {
+    try std.testing.expectEqual(10, 3 + 7);
 }
