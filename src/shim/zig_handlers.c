@@ -11,28 +11,33 @@
 
 int max_msg_size = 1024;
 
+extern void notice_handler(const char *msg);
+extern void error_handler(const char *msg);
+
 /// notice_handler owns the generated string.
-void *shim_notice(const char *fmt, ...)
+void shim_notice(const char *fmt, ...)
 {
     char *msg;
     if ((msg = malloc(max_msg_size)) == NULL)
-        return (NULL);
+        return;
     va_list ap;
     va_start(ap, fmt);
     vsnprintf(msg, max_msg_size, fmt, ap);
     va_end(ap);
     notice_handler(msg);
+    return;
 }
 
 // log_and_exit_handler() owns the generated string.
-void *shim_error(const char *fmt, ...)
+void shim_error(const char *fmt, ...)
 {
     char *msg;
     if ((msg = malloc(max_msg_size)) == NULL)
-        return (NULL);
+        return;
     va_list ap;
     va_start(ap, fmt);
     vsnprintf(msg, max_msg_size, fmt, ap);
     va_end(ap);
     error_handler(msg);
+    return;
 }
