@@ -30,13 +30,19 @@ zig build test
 
 ## Examples
 
-TODO
+```shell
+$ zig build --help
+$ zig build run-example1
+Geometry A:         POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))
+Geometry B:         POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))
+Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
+```
 
 ## Roadmap
 
 - [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
 - [ ] Create example exe using this package as a Zig library.
-- [ ] Port libgeos C examples to Zig  (src/geos/examples)
+- [ ] Port (rest of) libgeos C examples to Zig  (src/geos/examples)
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.

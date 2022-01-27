@@ -9,6 +9,8 @@ const testing = std.testing;
 const expectEqualStrings = testing.expectEqualStrings;
 const convertCStr = std.mem.span;
 
+// TODO: move boilerplate default handlers into src/shim/default_handlers.zig?
+
 pub extern "c" fn shim_notice(format: [*c]const u8, ...) void;
 pub extern "c" fn shim_error(format: [*c]const u8, ...) void;
 
@@ -21,7 +23,7 @@ export fn notice_handler(msg: [*c]u8) void {
 /// libgeos log and exit handler. Is called by C fn shim_error().
 /// If is_test, then warns but don't exit().
 export fn error_handler(msg: [*c]const u8) void {
-    if(!builtin.is_test) {
+    if (!builtin.is_test) {
         std.log.err("libgeos: {s}", .{msg});
         std.os.exit(1);
     } else {
@@ -29,7 +31,6 @@ export fn error_handler(msg: [*c]const u8) void {
         std.log.warn("libgeos: {s}", .{msg});
     }
 }
-
 
 test "GEOSversion" {
     const want = "3.10.2-CAPI-1.16.0";
