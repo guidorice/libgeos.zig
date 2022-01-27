@@ -41,7 +41,7 @@ Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
 ## Roadmap
 
 - [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
-- [ ] Create example exe using this package as a Zig library.
+- [x] Create example exe using this package as a Zig library.
 - [ ] Port (rest of) libgeos C examples to Zig  (src/geos/examples)
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
