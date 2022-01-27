@@ -1,2 +1,2 @@
-void shim_notice(const char *fmt, ...);
-void shim_error(const char *fmt, ...);
+void shimNotice(const char *fmt, ...);
+void shimError(const char *fmt, ...);

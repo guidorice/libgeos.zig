@@ -1,8 +1,5 @@
 /// Credit to mattnite for https://github.com/mattnite/zig-zlib/blob/a6a72f47c0653b5757a86b453b549819a151d6c7/zlib.zig
-
 const std = @import("std");
-const Self = @This();
-
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const endsWith = std.mem.endsWith;
@@ -25,7 +22,8 @@ const geos_include_dirs = [_][]const u8{
     dir ++ "/geos/src/deps",
 };
 
-/// c args and defines were copied from src/geos/build/CMakeFiles/geos.dir/flags.make
+/// c args and defines were (mostly) copied from
+/// src/geos/build/CMakeFiles/geos.dir/flags.make
 const geos_c_args = [_][]const u8{
     "-g0",
     "-O",
@@ -54,7 +52,8 @@ const geos_c_args = [_][]const u8{
     "-Wno-unknown-warning-option",
 };
 
-/// cpp args and defines were copied from src/geos/build/CMakeFiles/geos.dir/flags.make
+/// cpp args and defines were (mostly) copied from
+/// src/geos/build/CMakeFiles/geos.dir/flags.make
 const geos_cpp_args = [_][]const u8{
     "-g0",
     "-O",
@@ -83,7 +82,6 @@ const geos_cpp_args = [_][]const u8{
     "-Wno-unknown-warning-option",
     "-std=c++11",
 };
-
 
 pub const Options = struct {
     import_name: ?[]const u8 = null,
@@ -138,7 +136,6 @@ pub fn createCAPI(b: *std.build.Builder, target: std.zig.CrossTarget, mode: std.
     c_api.addCSourceFiles(cpp_srcs, &geos_cpp_args);
     return Library{ .step = c_api };
 }
-
 
 /// Walk the libgeos source tree and collect either .c and .cpp source files,
 /// depending on the suffix. *Caller owns the returned memory.*
