@@ -14,7 +14,7 @@
 
 ## Build
 
-Don't forget to clone/init the submodule!
+Requires only `zig`. Don't forget to clone/init the submodule!
 
 ```shell
 git clone --recurse-submodules https://github.com/guidorice/libgeos.zig.git
@@ -42,7 +42,8 @@ Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
 
 - [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
 - [x] Create example exe using this package as a Zig library.
-- [ ] Port (rest of) libgeos C examples to Zig  (src/geos/examples)
+- [ ] Port (rest of) libgeos C examples to Zig  (from src/geos/examples)
+- [ ] Port reentrant/threadsafe libgeos C examples to Zig.
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.

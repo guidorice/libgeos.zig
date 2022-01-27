@@ -11,11 +11,13 @@
 
 int max_msg_size = 1024;
 
-extern void notice_handler(const char *msg);
-extern void error_handler(const char *msg);
+// extern handlers which are exported by default_handlers.zig
+extern void noticeHandler(const char *msg);
+extern void errorHandler(const char *msg);
 
-/// notice_handler owns the generated string.
-void shim_notice(const char *fmt, ...)
+/// Format the notice string, then call noticeHandler().
+/// noticeHandler owns the returned memory.
+void shimNotice(const char *fmt, ...)
 {
     char *msg;
     if ((msg = malloc(max_msg_size)) == NULL)
@@ -24,12 +26,13 @@ void shim_notice(const char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(msg, max_msg_size, fmt, ap);
     va_end(ap);
-    notice_handler(msg);
+    noticeHandler(msg);
     return;
 }
 
-// log_and_exit_handler() owns the generated string.
-void shim_error(const char *fmt, ...)
+/// Format the error string, then call errorHandler.
+/// errorHandler owns the returned memory.
+void shimError(const char *fmt, ...)
 {
     char *msg;
     if ((msg = malloc(max_msg_size)) == NULL)
@@ -38,6 +41,6 @@ void shim_error(const char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(msg, max_msg_size, fmt, ap);
     va_end(ap);
-    error_handler(msg);
+    errorHandler(msg);
     return;
 }

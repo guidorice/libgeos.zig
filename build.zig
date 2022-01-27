@@ -17,6 +17,7 @@ pub fn build(b: *std.build.Builder) !void {
     test_step.dependOn(&tests.step);
 
     const exe = b.addExecutable("example1", "src/examples/example1.zig");
+    exe.addPackagePath("default_handlers", "src/shim/default_handlers.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
     core_lib.link(exe, .{});
