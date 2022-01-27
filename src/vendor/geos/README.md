@@ -32,14 +32,14 @@ cd ..
 # commit changed files to git, commit git submodule for geos.
 ```
 
-### zig-cxx.sh
+## zig-cxx.sh
 
 ```bash
 #!/usr/bin/env bash
 exec zig c++ "$@"
 ```
 
-### zig-cc.sh
+## zig-cc.sh
 
 ```bash
 #!/usr/bin/env bash
