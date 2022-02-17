@@ -9,7 +9,6 @@ const std = @import("std");
 const builtin = @import("builtin");
 const handlers = @import("default_handlers");
 
-
 const convertCStr = std.mem.span;
 
 pub fn main() anyerror!void {
