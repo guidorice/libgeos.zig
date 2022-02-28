@@ -13,5 +13,5 @@ const handlers = @import("default_handlers");
 const convertCStr = std.mem.span;
 
 pub fn main() anyerror!void {
-    // TODO finish ex2
+    return error.Unimplemented;
 }
