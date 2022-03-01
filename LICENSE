@@ -1,6 +1,11 @@
-The MIT License (Expat)
+* Please note: libgeos is licensed under the GNU Lesser General Public License v2.1
+https://github.com/libgeos/geos/blob/main/COPYING
 
-Copyright (c) 2022, Alex G Rice
+* libgeos.zig (libgeos wrapper for Zig) is licensed under MIT License:
+
+The MIT License (MIT)
+
+Copyright (c) 2022 Alex G Rice
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
