@@ -48,5 +48,5 @@ test "c++ error handler" {
     const geom = c.GEOSWKTReader_read(reader, wkt);
     // TODO: the _read call crashes with: `libc++abi: terminating with uncaught exception of type geos::io::ParseException: ParseException: Unknown type: 'BADPOLYGON'`
     defer c.GEOSGeom_destroy(geom);
-    try testing.expect(reader != null);
+    try testing.expect(geom != null);
 }
