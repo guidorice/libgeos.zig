@@ -28,17 +28,24 @@ pub fn main() anyerror!void {
 
     const geom = c.GEOSWKTReader_read(reader, wkt);
     defer c.GEOSGeom_destroy(geom);
-
-    std.debug.print("done with parse wkt", .{});
-
-    // Check for parse success
+    // Check for parse success.
     if (geom == null) {
+        // TODO: parse failure actually results in an unhandled C++ exception (see Known Issues in Readme)
         return error.WKTParseFailure;
     }
 
-    // if (!geom) {
-    //     finishGEOS();
-    //     return 1;
-    // }
+    // Prepare the geometry
+    const prep_geom = c.GEOSPrepare(geom);
+    defer c.GEOSPreparedGeom_destroy(prep_geom);
+
+    // Read bounds of geometry
+    var xmin: ?f64 = null;
+    var xmax: ?f64 = null;
+    var ymin: ?f64 = null;
+    var ymax: ?f64 = null;
+    c.GEOSGeom_getXMin(geom, xmin);
+    c.GEOSGeom_getXMax(geom, xmax);
+    c.GEOSGeom_getYMin(geom, ymin);
+    c.GEOSGeom_getYMax(geom, ymax);
 
 }

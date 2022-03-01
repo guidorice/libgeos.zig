@@ -52,6 +52,7 @@ some error conditions, for example, failing to parse some WKT formatted string.
 - [ ] Solution for `std:runtime_error` conditions (see known issues)
 - [ ] Port (rest of) libgeos C examples to Zig  (from src/geos/examples)
 - [ ] Port reentrant/threadsafe libgeos C examples to Zig.
+- [ ] Solution for `std:runtime_error` conditions.
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
