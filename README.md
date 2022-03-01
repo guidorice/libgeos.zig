@@ -10,7 +10,7 @@
 
 ## zig version
 
-`0.10.0-dev`
+* `0.9.1`, `0.10.0-dev`
 
 ## Build
 
@@ -38,19 +38,23 @@ Geometry B:         POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))
 Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
 ```
 
+## Known Issues
+
+* blocker: The libgeos library uses C++ `std::runtime_error`, which is not currently
+captured by the Zig wrapper code. As a result, there is no way to recover from
+some error conditions, for example, failing to parse some WKT formatted string. 
+[see issue #9](https://github.com/guidorice/libgeos.zig/issues/9)
+
 ## Roadmap
 
 - [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
 - [x] Create example exe using this package as a Zig library.
+- [ ] Solution for `std:runtime_error` conditions (see known issues)
 - [ ] Port (rest of) libgeos C examples to Zig  (from src/geos/examples)
 - [ ] Port reentrant/threadsafe libgeos C examples to Zig.
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
-
-## Contribute
-
-Pull requests or issues are welcome!
 
 ## Notes
 
