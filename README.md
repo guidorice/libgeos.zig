@@ -4,11 +4,11 @@
 
 > GEOS (Geometry Engine, Open Source) is a C/C++ library for spatial computational geometry of the sort generally used by “geographic information systems” software. GEOS is a core dependency of PostGIS, QGIS, GDAL, and Shapely.
 
-## libgeos version
+## GEOS version
 
 `3.10.2-CAPI-1.16.0`
 
-## zig version
+## Zig version
 
 * `0.9.1`, `0.10.0-dev`
 
