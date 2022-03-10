@@ -50,8 +50,11 @@ some error conditions, for example, failing to parse some WKT formatted string.
 - [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
 - [x] Create example exe using this package as a Zig library.
 - [ ] Solution for `std:runtime_error` conditions (see known issues)
-- [ ] Port (rest of) libgeos C examples to Zig  (from src/geos/examples)
-- [ ] Port reentrant/threadsafe libgeos C examples to Zig.
+- [ ] Port libgeos C examples to Zig (from src/geos/examples)
+- [x]     Ex 1
+- [ ]     Ex 1 threadsafe
+- [x]     Ex 2
+- [ ]     Ex 3
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
