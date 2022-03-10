@@ -1,7 +1,8 @@
 /// Reads one geometry and does high-performance prepared geometry operations
 /// to place random points inside it.
 ///
-/// TODO: the description says "random points", however the example C code is not randomized.
+/// (the description says "random points", however the example C code is not
+/// randomized.)
 ///
 /// Ported from src/geos/examples/capi_prepared.c
 const c = @cImport({
