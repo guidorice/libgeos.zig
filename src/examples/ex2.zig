@@ -1,7 +1,7 @@
 /// Reads one geometry and does high-performance prepared geometry operations
 /// to place random points inside it.
 ///
-/// TODO: the description says "random points", however the example C code is not randomized.7
+/// TODO: the description says "random points", however the example C code is not randomized.
 ///
 /// Ported from src/geos/examples/capi_prepared.c
 const c = @cImport({
@@ -18,9 +18,10 @@ const handlers = @import("default_handlers");
 const convertCStr = std.mem.span;
 
 pub fn main() anyerror!void {
+    const stdout = std.io.getStdOut().writer();
     var gpa = GeneralPurposeAllocator{};
-    defer _ = gpa.deinit();
     const allocator = gpa.allocator();
+    defer _ = gpa.deinit();
 
     // Send notice and error messages to our stdout handler
     c.initGEOS(handlers.shimNotice, handlers.shimError);
@@ -38,10 +39,11 @@ pub fn main() anyerror!void {
 
     const geom = c.GEOSWKTReader_read(reader, wkt);
     defer c.GEOSGeom_destroy(geom);
+
     // Check for parse success.
     if (geom == null) {
-        // TODO: parse failure actually results in an unhandled C++ exception (see Known Issues in Readme)
-        return error.WKTParseFailure;
+        // TODO: parse failure actually results in an unhandled C++ exception (see known issues)
+        return error.GEOSWKTParseFailure;
     }
 
     // Prepare the geometry
@@ -53,7 +55,7 @@ pub fn main() anyerror!void {
     var xmax: f64 = 0;
     var ymin: f64 = 0;
     var ymax: f64 = 0;
-    if(c.GEOSGeom_getXMin(geom, &xmin) == 0) {
+    if (c.GEOSGeom_getXMin(geom, &xmin) == 0) {
         // geos returns 0 on empty geometry.
         return error.GEOSInvalidOperation;
     }
@@ -77,7 +79,7 @@ pub fn main() anyerror!void {
     // Place to hold points to output
     //      The example C code allocated a [steps*steps] array of pointers.
     //      Instead, use zig std library ArrayList.
-    var geoms = ArrayList(*c.GEOSGeometry).init(allocator);
+    var geoms = ArrayList(?*c.GEOSGeometry).init(allocator);
     defer geoms.deinit();
 
     // Test all the points in the polygon bounding box
@@ -87,17 +89,44 @@ pub fn main() anyerror!void {
     while (i < steps) : (i += 1) {
         while (j < steps) : (j += 1) {
             // Make a point in the point grid
-            const pt = c.GEOSGeom_createPointFromXY(
-                xmin + xstep * @intToFloat(f64, i),
-                ymin + ystep * @intToFloat(f64, j)
-            );
+            const x = xmin + xstep * @intToFloat(f64, i);
+            const y = ymin + ystep * @intToFloat(f64, j);
+            const pt = c.GEOSGeom_createPointFromXY(x, y) orelse return error.GEOSInvalidOperation;
+
             // Check if the point and polygon intersect
             if (c.GEOSPreparedIntersects(prep_geom, pt) != '0') {
                 // Save the ones that do
+                try geoms.append(pt);
             } else {
                 // Clean up the ones that don't
                 c.GEOSGeom_destroy(pt);
             }
         }
     }
+
+    // Put the successful geoms inside a geometry for WKT output
+    const result = c.GEOSGeom_createCollection(c.GEOS_MULTIPOINT, geoms.items.ptr, @intCast(c_uint, geoms.items.len));
+    defer c.GEOSGeom_destroy(result);
+
+    // The GEOSGeom_createCollection() only takes ownership of the
+    // geometries, not the array container, so we can free the container now.
+    //
+    // (See defer statement above)
+
+    // Convert result to WKT
+    const writer = c.GEOSWKTWriter_create();
+    defer c.GEOSWKTWriter_destroy(writer);
+
+    // Trim trailing zeros off output
+    c.GEOSWKTWriter_setTrim(writer, 1);
+    c.GEOSWKTWriter_setRoundingPrecision(writer, 3);
+    const wkt_result = c.GEOSWKTWriter_write(writer, result);
+    defer c.GEOSFree(wkt_result);
+
+    // Print answer
+    try stdout.print("Input Polygon:\n{s}\n\n", .{wkt});
+    try stdout.print("Output Points:\n{s}\n\n", .{wkt_result});
+
+    // Clean up everything we allocated & Clean up the global context
+    // (see zig defer statements above)
 }
