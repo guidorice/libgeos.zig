@@ -20,8 +20,8 @@ const convertCStr = std.mem.span;
 pub fn main() anyerror!void {
     const stdout = std.io.getStdOut().writer();
     var gpa = GeneralPurposeAllocator{};
-    const allocator = gpa.allocator();
     defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
 
     // Send notice and error messages to our stdout handler
     c.initGEOS(handlers.shimNotice, handlers.shimError);
