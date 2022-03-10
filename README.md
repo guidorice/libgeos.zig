@@ -32,7 +32,7 @@ zig build test
 
 ```shell
 $ zig build --help
-$ zig build run-example1
+$ zig build run-ex1
 Geometry A:         POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))
 Geometry B:         POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))
 Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
