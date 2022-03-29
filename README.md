@@ -54,7 +54,7 @@ some error conditions, for example, failing to parse some WKT formatted string.
     - [x] [Ex 1](src/examples/ex1.zig) Reads two WKT representations and calculates the intersection, prints it out, and cleans up.
     - [ ] [Ex 1 (threadsafe)](src/examples/ex1-ts.zig) TODO
     - [x] [Ex 2](src/examples/ex2.zig) Reads one geometry and does high-performance prepared geometry operations to place "random" points inside it.
-    - [ ] [Ex 3](src/examples/ex3.zig) Build a spatial index and search it for a nearest pair.
+    - [x] [Ex 3](src/examples/ex3.zig) Build a spatial index and search it for a nearest pair.
 - [ ] New Zig idiomatic wrapper for libgeos C API.
 - [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
 - [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
