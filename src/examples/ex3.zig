@@ -5,14 +5,10 @@ const c = @cImport({
     @cInclude("zig_handlers.h");
     @cInclude("geos_c.h");
 });
-
 const std = @import("std");
-const builtin = @import("builtin");
 const handlers = @import("default_handlers");
-const convertCStr = std.mem.span;
-const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator(.{});
 
-var prng = std.rand.DefaultPrng.init(0);
+var prng = std.rand.DefaultPrng.init(42); // TODO: better random seed
 const random = prng.random();
 
 /// Generate a random point in the range of POINT(0..range, 0..range).
@@ -28,7 +24,9 @@ fn geosRandomPoint(range: f64) !*c.GEOSGeometry {
     return error.GEOSFailedToCreatePoint;
 }
 
-pub fn main() anyerror!void {
+pub fn main() !void {
+    const stdout = std.io.getStdOut().writer();
+
     // Send notice and error messages to our stdout handler
     c.initGEOS(handlers.shimNotice, handlers.shimError);
 
@@ -50,15 +48,22 @@ pub fn main() anyerror!void {
     // number of entries per node. 10 is a good default number to use.
     var tree = c.GEOSSTRtree_create(10);
     defer c.GEOSSTRtree_destroy(tree);
-
-    var i: usize = 0;
-    while (i < npoints) : (i += 1) {
-        // Make a random point
-        const geom = try geosRandomPoint(range);
-        // Store away a reference so we can free it after
-        geoms[i] = geom;
-        // Add an entry for it to the tree
-        c.GEOSSTRtree_insert(tree, geom, geom);
+    {
+        var i: usize = 0;
+        while (i < npoints) : (i += 1) {
+            // Make a random point
+            const geom = try geosRandomPoint(range);
+            // Store away a reference so we can free it after
+            geoms[i] = geom;
+            // Add an entry for it to the tree
+            c.GEOSSTRtree_insert(tree, geom, geom);
+        }
+    }
+    defer {
+        var i: usize = 0;
+        while (i < npoints) : (i += 1) {
+            c.GEOSGeom_destroy(geoms[i]);
+        }
     }
 
     // Random point to compare to the field
@@ -68,42 +73,25 @@ pub fn main() anyerror!void {
     // Nearest point in the field to our test point
     const geom_nearest = c.GEOSSTRtree_nearest(tree, geom_random);
 
-    std.log.info("{} {}", .{
-        geom_nearest,
-        npoints,
-    });
+    // Convert results to WKT
+    const writer = c.GEOSWKTWriter_create();
+    defer c.GEOSWKTWriter_destroy(writer);
+    // Trim trailing zeros off output
+    c.GEOSWKTWriter_setTrim(writer, 1);
+    c.GEOSWKTWriter_setRoundingPrecision(writer, 3);
+    const wkt_random = c.GEOSWKTWriter_write(writer, geom_random);
+    defer c.GEOSFree(wkt_random);
+    const wkt_nearest = c.GEOSWKTWriter_write(writer, geom_nearest);
+    defer c.GEOSFree(wkt_nearest);
 
-    // /* Convert results to WKT */
-    // GEOSWKTWriter* writer = GEOSWKTWriter_create();
-    // /* Trim trailing zeros off output */
-    // GEOSWKTWriter_setTrim(writer, 1);
-    // GEOSWKTWriter_setRoundingPrecision(writer, 3);
-    // char* wkt_random = GEOSWKTWriter_write(writer, geom_random);
-    // char* wkt_nearest = GEOSWKTWriter_write(writer, geom_nearest);
-    // GEOSWKTWriter_destroy(writer);
+    // Print answer
+    try stdout.print("Random Point:    {s}\n", .{wkt_random});
+    try stdout.print("Nearest Point:   {s}\n", .{wkt_nearest});
 
-    // /* Print answer */
-    // printf(" Random Point: %s\n", wkt_random);
-    // printf("Nearest Point: %s\n", wkt_nearest);
-
-    // /* Clean up all allocated objects */
-    // /* Destroying tree does not destroy inputs */
-    // GEOSSTRtree_destroy(tree);
-    // GEOSGeom_destroy(geom_random);
-    // /* Destroy all the points in our random field */
-    // for (size_t i = 0; i < npoints; i++) {
-    //     GEOSGeom_destroy(geoms[i]);
-    // }
-    // /*
-    // * Don't forget to free memory allocated by the
-    // * printing functions!
-    // */
-    // GEOSFree(wkt_random);
-    // GEOSFree(wkt_nearest);
-
-    // /* Clean up the global context */
-    // finishGEOS();
-
-    // /* Done */
-    // return 0;
+    // | Clean up all allocated objects
+    // | Destroying tree does not destroy inputs
+    // | Destroy all the points in our random field
+    // | Don't forget to free memory allocated by the printing functions!
+    // | Clean up the global context
+    // |-> see zig defer statements above!
 }

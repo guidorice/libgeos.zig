@@ -10,15 +10,12 @@ const c = @cImport({
     @cInclude("geos_c.h");
 });
 const std = @import("std");
+const handlers = @import("default_handlers");
+
 const ArrayList = std.ArrayList;
 const GeneralPurposeAllocator = std.heap.GeneralPurposeAllocator(.{});
 
-const builtin = @import("builtin");
-const handlers = @import("default_handlers");
-
-const convertCStr = std.mem.span;
-
-pub fn main() anyerror!void {
+pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
     var gpa = GeneralPurposeAllocator{};
     defer _ = gpa.deinit();
@@ -128,6 +125,7 @@ pub fn main() anyerror!void {
     try stdout.print("Input Polygon:\n{s}\n\n", .{wkt});
     try stdout.print("Output Points:\n{s}\n\n", .{wkt_result});
 
-    // Clean up everything we allocated & Clean up the global context
-    // (see zig defer statements above)
+    // | Clean up everything we allocated
+    // | Clean up the global context
+    // |-> *see zig defer statements above*
 }
