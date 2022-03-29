@@ -1,8 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const testing = std.testing;
-const expectEqualStrings = testing.expectEqualStrings;
-const convertCStr = std.mem.span;
 
 pub extern "c" fn shimNotice(format: [*c]const u8, ...) void;
 pub extern "c" fn shimError(format: [*c]const u8, ...) void;

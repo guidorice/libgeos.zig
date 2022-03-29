@@ -7,16 +7,17 @@ const c = @cImport({
     @cInclude("geos_c.h");
 });
 const std = @import("std");
-const builtin = @import("builtin");
 const handlers = @import("default_handlers");
-
-const convertCStr = std.mem.span;
 
 pub fn main() anyerror!void {
     const stdout = std.io.getStdOut().writer();
 
     // Send notice and error messages to our stdout handler
     c.initGEOS(handlers.shimNotice, handlers.shimError);
+
+    // Clean up the global context
+    defer c.finishGEOS();
+    errdefer c.finishGEOS();
 
     // Two squares that overlap
     const wkt_a = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))";
@@ -39,7 +40,6 @@ pub fn main() anyerror!void {
     const writer = c.GEOSWKTWriter_create();
     defer c.GEOSWKTWriter_destroy(writer);
 
-
     // Trim trailing zeros off output
     c.GEOSWKTWriter_setTrim(writer, 1);
     const wkt_inter = c.GEOSWKTWriter_write(writer, inter);
@@ -48,8 +48,9 @@ pub fn main() anyerror!void {
     // Print answer
     try stdout.print("Geometry A:         {s}\n", .{wkt_a});
     try stdout.print("Geometry B:         {s}\n", .{wkt_b});
-    try stdout.print("Intersection(A, B): {s}\n", .{convertCStr(wkt_inter)});
+    try stdout.print("Intersection(A, B): {s}\n", .{wkt_inter});
 
-    // Clean up the global context
-    defer c.finishGEOS();
+    // | Clean up everything we allocated
+    // | Clean up the global context
+    // |-> *see zig defer statements above*
 }
