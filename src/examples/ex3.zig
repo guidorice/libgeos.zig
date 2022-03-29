@@ -48,21 +48,18 @@ pub fn main() !void {
     // number of entries per node. 10 is a good default number to use.
     var tree = c.GEOSSTRtree_create(10);
     defer c.GEOSSTRtree_destroy(tree);
-    {
-        var i: usize = 0;
-        while (i < npoints) : (i += 1) {
-            // Make a random point
-            const geom = try geosRandomPoint(range);
-            // Store away a reference so we can free it after
-            geoms[i] = geom;
-            // Add an entry for it to the tree
-            c.GEOSSTRtree_insert(tree, geom, geom);
-        }
+
+    for (geoms) |*geom_store| {
+        // Make a random point
+        const geom = try geosRandomPoint(range);
+        // Store away a reference so we can free it after
+        geom_store.* = geom;
+        // Add an entry for it to the tree
+        c.GEOSSTRtree_insert(tree, geom, geom);
     }
     defer {
-        var i: usize = 0;
-        while (i < npoints) : (i += 1) {
-            c.GEOSGeom_destroy(geoms[i]);
+        for (geoms) |*geom_store| {
+            c.GEOSGeom_destroy(geom_store.*);
         }
     }
 
