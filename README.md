@@ -42,22 +42,22 @@ Intersection(A, B): POLYGON ((10 10, 10 5, 5 5, 5 10, 10 10))
 
 * blocker: The libgeos library uses C++ `std::runtime_error`, which is not currently
 captured by the Zig wrapper code. As a result, there is no way to recover from
-some error conditions, for example, failing to parse some WKT formatted string. 
+some error conditions, for example, failing to parse some WKT formatted string.
 [see issue #9](https://github.com/guidorice/libgeos.zig/issues/9)
 
 ## Roadmap
 
-- [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
-- [x] Create example exe using this package as a Zig library.
-- [ ] Solution for `std:runtime_error` conditions (see known issues)
-- [ ] Port libgeos C examples to Zig (from src/geos/examples)
-    - [x] [Ex 1](src/examples/ex1.zig) Reads two WKT representations and calculates the intersection, prints it out, and cleans up.
-    - [ ] [Ex 1 (threadsafe)](src/examples/ex1-ts.zig) TODO
-    - [x] [Ex 2](src/examples/ex2.zig) Reads one geometry and does high-performance prepared geometry operations to place "random" points inside it.
-    - [x] [Ex 3](src/examples/ex3.zig) Build a spatial index and search it for a nearest pair.
-- [ ] New Zig idiomatic wrapper for libgeos C API.
-- [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
-- [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
+* [x] Minimal build.zig. Builds libgeos entirely using Zig compiler and build system.
+* [x] Create example exe using this package as a Zig library.
+* [x] Port libgeos C examples to Zig (from src/geos/examples)
+  * [x] [Ex 1](src/examples/ex1.zig) Reads two WKT representations and calculates the intersection, prints it out, and cleans up.
+  * [x] [Ex 1 (threadsafe)](src/examples/ex1-ts.zig)
+  * [x] [Ex 2](src/examples/ex2.zig) Reads one geometry and does high-performance prepared geometry operations to place "random" points inside it.
+  * [x] [Ex 3](src/examples/ex3.zig) Build a spatial index and search it for a nearest pair.
+* [ ] Solution for `std:runtime_error` conditions (see known issues)
+* [ ] New Zig idiomatic wrapper for libgeos C API? Alternatively: port to Zig-native.
+* [ ] New GeoJSON reader/writer which speaks libgeos types and full support for Feature properties. Reference: [GEOS GeoJSON support notes here.](https://libgeos.org/specifications/geojson/)
+* [ ] New Zig projects which utilize these Geospatial or Geometric primitives.
 
 ## Notes
 
