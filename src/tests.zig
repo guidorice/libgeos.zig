@@ -46,6 +46,9 @@ test "c++ error handler" {
     defer c.GEOSWKTReader_destroy(reader);
 
     const geom = c.GEOSWKTReader_read(reader, wkt);
+    std.log.info("geom: {}", .{geom});
+    try testing.expect(geom == null); // here want geom to be null, and our errorHandler should have been called.
+
     // TODO: the _read call crashes with: `libc++abi: terminating with uncaught exception of type geos::io::ParseException: ParseException: Unknown type: 'BADPOLYGON'`
     defer c.GEOSGeom_destroy(geom);
     try testing.expect(geom != null);
